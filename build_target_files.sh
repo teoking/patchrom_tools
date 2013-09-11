@@ -52,6 +52,20 @@ function copy_data_dir {
     fi
 }
 
+# TODO. Comment by teok.
+# These imgs are located at top of the zip.
+function copy_other_img {
+    echo "Copy root dir"
+    for file in logo.img env_MX.img
+    do
+        if [ -f $ZIP_DIR/$file ]
+        then
+            mkdir -p $TARGET_FILES_DIR/OTHER/
+            cp -rf $ZIP_DIR/$file $TARGET_FILES_DIR/OTHER/
+        fi
+    done
+}
+
 function recover_link {
     cp -f $METADATA_DIR/linkinfo.txt $TARGET_FILES_DIR/SYSTEM
     python $TOOL_DIR/releasetools/recoverylink.py $TARGET_FILES_DIR
@@ -106,6 +120,7 @@ fi
 copy_target_files_template
 copy_bootimage
 copy_system_dir
+copy_other_img
 copy_data_dir
 process_metadata
 if [ -f "customize_target_files.sh" ]; then

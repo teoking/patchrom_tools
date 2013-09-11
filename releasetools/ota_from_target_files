@@ -315,6 +315,34 @@ def CopyDataFiles(input_zip, output_zip=None):
          data = input_zip.read(info.filename)
          output_zip.writestr(info2, data)
 
+# TODO. Comment by teoking.
+# Copy OTHER/* to output zip's /
+def CopyOtherEnvMXFiles(input_zip, output_zip, script):
+  """Copies files underneath / in the input zip to the output zip"""
+  # copy env_MX.img
+  for info in input_zip.infolist():
+    if info.filename.startswith("OTHER/env_MX.img"):
+      basefilename = info.filename[6:]
+      info2 = copy.copy(info)
+      info2.filename = basefilename
+      common.ZipWriteStr(output_zip, "env_MX.img", input_zip.read(info.filename))
+      # FIXME
+      script.AppendExtra('assert(package_extract_file("env_MX.img", "/tmp/env_MX.img"), format("yaffs2","MTD", "ubootenv", "/ubootenv"), write_raw_image("/tmp/env_MX.img", "ubootenv"), delete("/tmp/env_MX.img"));')
+
+# TODO. Comment by teoking.
+# Copy OTHER/logo.img to output zip's /
+def CopyOtherLogoFile(input_zip, output_zip, script):
+  # copy logo.img
+  for info in input_zip.infolist():
+    if info.filename.startswith("OTHER/logo.img"):
+      basefilename = info.filename[6:]
+      info2 = copy.copy(info)
+      info2.filename = basefilename
+      common.ZipWriteStr(output_zip, "logo.img", input_zip.read(info.filename))
+      # FIXME
+      #script.WriteRawImage("logo.img", "logo.img")
+      script.AppendExtra('write_raw_image(package_extract_file("logo.img"), "logo");')
+
 def SignOutput(temp_zip_name, output_zip_name):
   key_passwords = common.GetKeyPasswords([OPTIONS.package_key])
   pw = key_passwords[OPTIONS.package_key]
@@ -400,6 +428,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   device_specific.FullOTA_Assertions()
 
   script.ShowProgress(0.5, 0)
+  # TODO. Added by teoking.
+  CopyOtherEnvMXFiles(input_zip, output_zip, script)
 
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
@@ -421,6 +451,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   # else:
   #   script.UndoRetouchBinaries(retouch_files)
 
+  # TODO. Added by teoking.
+  CopyOtherLogoFile(input_zip, output_zip, script)
   CopyDataFiles(input_zip, output_zip)
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
