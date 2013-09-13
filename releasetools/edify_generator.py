@@ -168,9 +168,9 @@ class EdifyGenerator(object):
     fstab = self.info.get("fstab", None)
     if fstab:
       p = fstab[partition]
-      self.script.append('format("%s", "%s", "%s", "%s");' %
+      self.script.append('format("%s", "%s", "%s", "%s", "%s");' %
                          (p.fs_type, common.PARTITION_TYPES[p.fs_type],
-                          p.device, p.mount_point))
+                          p.device, p.length, p.mount_point))
 
   def DeleteFiles(self, file_list):
     """Delete all files in file_list."""
@@ -254,6 +254,9 @@ class EdifyGenerator(object):
       self.script.append('unmount("%s");' % (p,))
     self.mounts = set()
 
+  # TODO. Comment by teoking.
+  # Need to change the relevant caller to pass the right input_path param in.
+  # I only replace the update-binary in OTA/BIN to avoid this mismatch.
   def AddToZip(self, input_zip, output_zip, input_path=None):
     """Write the accumulated script to the output_zip file.  input_zip
     is used as the source for the 'updater' binary needed to run
@@ -266,6 +269,7 @@ class EdifyGenerator(object):
                        "\n".join(self.script) + "\n")
 
     if input_path is None:
+      print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@input_path is None"
       data = input_zip.read("OTA/bin/updater")
     else:
       data = open(os.path.join(input_path, "updater")).read()

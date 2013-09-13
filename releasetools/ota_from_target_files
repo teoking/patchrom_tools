@@ -327,7 +327,7 @@ def CopyOtherEnvMXFiles(input_zip, output_zip, script):
       info2.filename = basefilename
       common.ZipWriteStr(output_zip, "env_MX.img", input_zip.read(info.filename))
       # FIXME
-      script.AppendExtra('assert(package_extract_file("env_MX.img", "/tmp/env_MX.img"), format("yaffs2","MTD", "ubootenv", "/ubootenv"), write_raw_image("/tmp/env_MX.img", "ubootenv"), delete("/tmp/env_MX.img"));')
+      script.AppendExtra('assert(package_extract_file("env_MX.img", "/tmp/env_MX.img"), format("yaffs2","MTD", "ubootenv", "0", "/ubootenv"), write_raw_image("/tmp/env_MX.img", "ubootenv"), delete("/tmp/env_MX.img"));')
 
 # TODO. Comment by teoking.
 # Copy OTHER/logo.img to output zip's /
@@ -429,7 +429,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   script.ShowProgress(0.5, 0)
   # TODO. Added by teoking.
+  script.Print("teoking's debug info --> @@@1")
   CopyOtherEnvMXFiles(input_zip, output_zip, script)
+  script.Print("teoking's debug info --> @@@2")
 
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
@@ -437,15 +439,18 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.Print("Formatting system...")
   script.Unmount("/system")
   script.FormatPartition("/system")
+  script.Print("teoking's debug info --> @@@3")
 
   script.Print("Installing system files...")
   script.Mount("/system")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.Print("teoking's debug info --> @@@4")
 
   script.Print("Creating system links...")
   (symlinks, retouch_files) = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
+  script.Print("teoking's debug info --> @@@5")
   # if OPTIONS.aslr_mode:
   #   script.RetouchBinaries(retouch_files)
   # else:
@@ -453,7 +458,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   # TODO. Added by teoking.
   CopyOtherLogoFile(input_zip, output_zip, script)
+  script.Print("teoking's debug info --> @@@6")
   CopyDataFiles(input_zip, output_zip)
+  script.Print("teoking's debug info --> @@@7")
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
                                      OPTIONS.input_tmp, "BOOT")
@@ -470,10 +477,13 @@ def WriteFullOTAPackage(input_zip, output_zip):
     common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
     common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
   script.ShowProgress(0.2, 0)
+  script.Print("teoking's debug info --> @@@8")
 
   script.ShowProgress(0.2, 10)
   if boot_img and not device_specific.WriteRawImage("/boot", "boot.img"):
     script.WriteRawImage("/boot", "boot.img")
+
+  script.Print("teoking's debug info --> @@@9")
 
   script.ShowProgress(0.1, 0)
   device_specific.FullOTA_InstallEnd()
@@ -481,15 +491,21 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.extra_script is not None:
     script.AppendExtra(OPTIONS.extra_script)
 
+  script.Print("teoking's debug info --> @@@10")
+
   script.Mount("/data")
   script.UnpackPackageDir("data", "/data")
   script.SetPermissionsRecursive("/data/preinstall_apps", 1000, 1000, 0755, 0644)
   common.ZipWriteStr(output_zip, "data/preinstall_apps/reinstall_apps", "reinstall_apps")
   script.AppendExtra('delete_recursive("/data/dalvik-cache");')
 
+  script.Print("teoking's debug info --> @@@11")
+
   script.UnmountAll()
   script.AddToZip(input_zip, output_zip)
   WriteMetadata(metadata, output_zip)
+
+  script.Print("teoking's debug info --> @@@12")
 
 
 def WriteMetadata(metadata, output_zip):
