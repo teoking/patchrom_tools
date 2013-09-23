@@ -424,8 +424,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   CopyDataFiles(input_zip, output_zip)
 
-  boot_img = common.GetBootableImage("boot.img", "boot.img",
-                                     OPTIONS.input_tmp, "BOOT")
+  # TODO by teoking. Comment out.
+  boot_img = False
+  # boot_img = common.GetBootableImage("boot.img", "boot.img",
+  #                                   OPTIONS.input_tmp, "BOOT")
   # recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
   #                                        OPTIONS.input_tmp, "RECOVERY")
   # MakeRecoveryPatch(output_zip, recovery_img, boot_img)

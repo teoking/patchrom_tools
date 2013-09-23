@@ -40,7 +40,7 @@ if not hasattr(os, "SEEK_SET"):
 class Options(object): pass
 OPTIONS = Options()
 OPTIONS.search_path = os.path.join(os.environ["PORT_ROOT"], "tools");
-OPTIONS.verbose = False
+OPTIONS.verbose = True
 OPTIONS.tempfiles = []
 OPTIONS.device_specific = None
 OPTIONS.extras = {}
@@ -356,7 +356,7 @@ def SignFile(input_name, output_name, key, password, align=None,
   else:
     sign_name = output_name
 
-  cmd = ["java", "-Xmx4096m", "-jar",
+  cmd = ["java", "-Xmx1024m", "-jar",
            os.path.join(OPTIONS.search_path, "signapk.jar")]
   if whole_file:
     cmd.append("-w")
@@ -820,7 +820,7 @@ def ComputeDifferences(diffs):
 # map recovery.fstab's fs_types to mount/format "partition types"
 PARTITION_TYPES = { "yaffs2": "MTD", "mtd": "MTD", "ext3": "EMMC",
                     "ext4": "EMMC", "emmc": "EMMC", "vfat": "EMMC",
-					"auto": "EMMC"}
+                    "ubifs": "UBI", "auto": "EMMC"}
 
 def GetTypeAndDevice(mount_point, info):
   fstab = info["fstab"]
