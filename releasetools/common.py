@@ -356,7 +356,7 @@ def SignFile(input_name, output_name, key, password, align=None,
   else:
     sign_name = output_name
 
-  cmd = ["java", "-Xmx1024m", "-jar",
+  cmd = ["java", "-Xmx2048m", "-jar",
            os.path.join(OPTIONS.search_path, "signapk.jar")]
   if whole_file:
     cmd.append("-w")
